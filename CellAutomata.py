@@ -2,6 +2,7 @@ import random
 import sys
 import os
 import time
+import numpy as np
 
 
 class cellBoard:
@@ -12,10 +13,12 @@ class cellBoard:
 	def __init__(self, width, height):
 		self.w = width
 		self.h = height
-		self.parity = 0
-		self.board = [[0 for x in range(width)] for y in range(height)] 
-		self.boardAux = [[-1 for x in range(width)] for y in range(height)] 
-		self.windowAux = [[-1 for x in range(3)] for y in range (3)]
+		self.board = np.zeros((width,height))
+		self.boardAux = np.zeros((width,height))
+		self.windowAux = [[0 for x in range(3)] for y in range(3)]
+
+
+	#Specifying data methods/functions. 
 
 	def printBoard(self):
 		print("---")
@@ -28,6 +31,22 @@ class cellBoard:
 			for j in range(self.h):
 				self.board[i][j] = random.randint(0,1)
 
+	def getBoard(self):
+		return self.board
+
+	def setRandomPrintTime(self):
+		t0 = time.perf_counter()
+		self.setRandom()
+		elapsed = time.perf_counter() - t0
+		print("Random ", self.w, " by ", self.h, " board generated in ", elapsed, " seconds.")
+
+	def updatePrint(self):
+		self.updateBoard()
+		self.printBoard()
+
+
+	#Calculations/UPdates
+
 	def updateBoard(self):
 		for i in range(self.w):
 			for j in range(self.h):
@@ -37,10 +56,6 @@ class cellBoard:
 		t = self.board
 		self.board = self.boardAux
 		self.boardAux = t
-
-	def updatePrint(self):
-		self.updateBoard()
-		self.printBoard()
 
 	#updates the cell at i,j by populating windowAux and passing to an update function. Also been tested!
 	def updateCell(self,i,j):
@@ -79,15 +94,15 @@ class cellBoard:
 		return -1
 
 
-
+#testing shit
 if __name__ == '__main__':
 	t0 = time.perf_counter()
 	iter = 50
 	cb = cellBoard(100,100)
-	cb.setRandom()
+	cb.setRandomPrintTime()
 	for i in range(iter):
 		cb.updateBoard()
-	
+
 	t1 = time.perf_counter()
 	print("Time Elapsed is ", t1-t0, " seconds.")
 
