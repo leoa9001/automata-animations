@@ -76,6 +76,9 @@ def update(grid):
     return new_grid
 
 
+
+
+
 def make_image(frame_i, grid, image):
     for i in range(args.num_colours):
         mask = grid == i
