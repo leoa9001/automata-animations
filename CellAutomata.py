@@ -1,8 +1,8 @@
 import random
 import sys
 import os
+import time
 
-#We'll have two double arrays, board0, board1, and parity tells us which is the current array and the other array is for 
 
 class cellBoard:
 	w,h = None, None
@@ -28,9 +28,7 @@ class cellBoard:
 			for j in range(self.h):
 				self.board[i][j] = random.randint(0,1)
 
-	#updates board. ends with shifting parity. 
 	def updateBoard(self):
-		#loop here and update by taking input from board and applying to boardAux
 		for i in range(self.w):
 			for j in range(self.h):
 				self.boardAux[i][j] = self.updateCell(i,j)
@@ -82,32 +80,19 @@ class cellBoard:
 
 
 
+if __name__ == '__main__':
+	t0 = time.perf_counter()
+	iter = 50
+	cb = cellBoard(100,100)
+	cb.setRandom()
+	for i in range(iter):
+		cb.updateBoard()
+	
+	t1 = time.perf_counter()
+	print("Time Elapsed is ", t1-t0, " seconds.")
 
 
 
-
-
-
-cb = cellBoard(5,5)
-cb.setRandom()
-cb.printBoard()
-cb.updateBoard()
-cb.printBoard()
-cb.updateBoard()
-cb.printBoard()
-cb.updateBoard()
-cb.printBoard()
-cb.updateBoard()
-
-
-
-
-
-# #returns the value on an update at square i,j in the board according to Conway's game of life rule
-# def golUpdate(i,j):
-# 	nCount =
-
-# printBoard()
 
 
 

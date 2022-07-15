@@ -5,7 +5,7 @@ Fork from [rps-automata](https://github.com/grey-area/rps-automata).
 Create animations of rock-paper-scissors automata, where each cell transitions
 to the next state if at least a given number of its neighbours are in that state.
 
-Requirements are in the ``requirements.txt`` file, so ``pip install -r requirements.txt``.
+Requirements are in the ``requirements.txt`` file, so ``pip3 install -r requirements.txt``.
 
 Useage:
 
