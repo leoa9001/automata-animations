@@ -1,3 +1,7 @@
+Fork from [rps-automata](https://github.com/grey-area/rps-automata).
+
+---
+
 Create animations of rock-paper-scissors automata, where each cell transitions
 to the next state if at least a given number of its neighbours are in that state.
 
