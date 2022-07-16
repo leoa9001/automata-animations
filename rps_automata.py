@@ -77,6 +77,39 @@ def update(grid):
     return new_grid
 
 
+def dist_pt(p1, p2):
+    return np.sum(np.square(p1 - p2))
+
+def closest_color_index(pix,maxind):
+    index = 0
+    dist = dist_pt(pix, colors[0])
+    for i in range(1, maxind):
+        dist2 = dist_pt(pix,colors[i])
+        if dist2 < dist:
+            dist = dist2
+            index = i
+    return index
+
+def invert_img(img,w,h):
+    img2 = np.zeros((w,h,3), dtype = np.uint8)
+    for i in range(w):
+        for j in range(h):
+            img2[i][j] = invert_pixel(img[i][j])
+    return img2
+
+def invert_pixel(pix):
+    d = pix
+    for i in range(3):
+        d[i] = (256 - d[i])%256
+    return d
+
+def grid_from_image(img,w,h, colors):
+    grid = np.zeros((w,h))
+    for i in range(w):
+        for j in range(h):
+            grid[i][j] = closest_color_index(img[i][j],colors)
+    return grid
+
 
 def make_image(frame_i, grid, image):
     for i in range(args.num_colors):
@@ -91,8 +124,8 @@ def make_image(frame_i, grid, image):
     )
     cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
 
-def gen_frames_rps(num_colors, height, width, grid):
-    image = np.zeros((args.height, args.width, 3), dtype=np.uint8)
+def gen_frames_rps(grid,width,height, num_colors):
+    image = np.zeros((args.height,args.width, 3), dtype=np.uint8)
 
     initial_frames = initial_seconds * fps
     for frame_i in tqdm(range(initial_frames)):
@@ -103,7 +136,7 @@ def gen_frames_rps(num_colors, height, width, grid):
         make_image(frame_i, grid, image)
         grid = update(grid)
 
-def gen_frames_gol(height, width, grid):
+def gen_frames_gol(grid,width,height):
     cb = ca.cellBoard(height, width)
     cb.setGrid(grid)
 
@@ -123,9 +156,15 @@ def gen_frames_gol(height, width, grid):
 
 if __name__ == '__main__':
     Path('frames').mkdir(exist_ok=True)
+    w,h,c = args.width, args.height, args.num_colors
 
-    grid = np.random.choice(2, size=(args.height, args.width))
+    img = cv2.imread('img-assets/MarioHeadSSBM.png')
+    img2 = invert_img(img,w,h)
+    grid = grid_from_image(img2,w,h,c)
+   
 
-    gen_frames_gol(args.height,args.width, grid)
+    gen_frames_rps(grid, w, h, c)
+
+    
 
     
