@@ -17,7 +17,7 @@ parser.add_argument(
     default=90, help='Height of grid.'
 )
 parser.add_argument(
-    '--num-colours', type=int,
+    '--num-colors', type=int,
     default=3, help='Number of states in the automaton.'
 )
 parser.add_argument(
@@ -33,7 +33,7 @@ args = parser.parse_args()
 initial_seconds = 1
 fps = 15
 
-colours = [
+colors = [
     np.array([[31,119,180]]),
     np.array([[255,127,14]]),
     np.array([[44,160,44]]),
@@ -56,12 +56,12 @@ convolution = np.array(
 def update(grid):
     new_grid = np.copy(grid)
 
-    colour_grids = [grid == i for i in range(args.num_colours)]
+    color_grids = [grid == i for i in range(args.num_colors)]
 
-    ns = np.arange(args.num_colours)
+    ns = np.arange(args.num_colors)
     for i, j in zip(ns, np.roll(ns, 1)):
-        target_mask = colour_grids[i]
-        neighbour_grid = colour_grids[j]
+        target_mask = color_grids[i]
+        neighbour_grid = color_grids[j]
         neighbour_mask = convolve2d(
             neighbour_grid,
             convolution,
@@ -79,9 +79,9 @@ def update(grid):
 
 
 def make_image(frame_i, grid, image):
-    for i in range(args.num_colours):
+    for i in range(args.num_colors):
         mask = grid == i
-        image[mask] = colours[i]
+        image[mask] = colors[i]
 
     resize_factor = 8
     out_image = cv2.resize(
@@ -91,7 +91,7 @@ def make_image(frame_i, grid, image):
     )
     cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
 
-def gen_frames_rps(num_colours, height, width, grid):
+def gen_frames_rps(num_colors, height, width, grid):
     image = np.zeros((args.height, args.width, 3), dtype=np.uint8)
 
     initial_frames = initial_seconds * fps

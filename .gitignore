@@ -3,3 +3,4 @@ frames/*
 outputs/*
 test-code/*
 img-assets/*
+__pycache__/CellAutomata.cpython-39.pyc
