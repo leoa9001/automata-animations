@@ -5,6 +5,7 @@ from tqdm import tqdm
 import argparse
 from pathlib import Path
 
+import CellAutomata as ca
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -77,8 +78,6 @@ def update(grid):
 
 
 
-
-
 def make_image(frame_i, grid, image):
     for i in range(args.num_colours):
         mask = grid == i
@@ -92,11 +91,7 @@ def make_image(frame_i, grid, image):
     )
     cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
 
-
-if __name__ == '__main__':
-    Path('frames').mkdir(exist_ok=True)
-
-    grid = np.random.choice(args.num_colours, size=(args.height, args.width))
+def gen_frames_rps(num_colours, height, width, grid):
     image = np.zeros((args.height, args.width, 3), dtype=np.uint8)
 
     initial_frames = initial_seconds * fps
@@ -108,3 +103,29 @@ if __name__ == '__main__':
         make_image(frame_i, grid, image)
         grid = update(grid)
 
+def gen_frames_gol(height, width, grid):
+    cb = ca.cellBoard(height, width)
+    cb.setGrid(grid)
+
+    image = np.zeros((args.height, args.width, 3), dtype=np.uint8)
+
+    initial_frames = initial_seconds * fps
+    for frame_i in tqdm(range(initial_frames)):
+        make_image(frame_i, grid, image)
+
+    subsequent_frames = args.seconds * fps
+    for frame_i in tqdm(range(initial_frames, initial_frames + subsequent_frames)):
+        make_image(frame_i, grid, image)
+        cb.updateBoard()
+        grid = cb.getBoard()
+
+
+
+if __name__ == '__main__':
+    Path('frames').mkdir(exist_ok=True)
+
+    grid = np.random.choice(2, size=(args.height, args.width))
+
+    gen_frames_gol(args.height,args.width, grid)
+
+    

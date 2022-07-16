@@ -26,6 +26,11 @@ class cellBoard:
 			print(x)
 		print("---")
 
+	#pass np ndarray
+	def setGrid(self,grid):
+		self.board = grid 
+
+
 	def setRandom(self):
 		for i in range(self.w):
 			for j in range(self.h):
