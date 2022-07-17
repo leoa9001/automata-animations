@@ -26,12 +26,13 @@ parser.add_argument(
 )
 parser.add_argument(
     '--seconds', type=int,
-    default=20, help='Number of seconds (at 15 FPS).'
+    default=10, help='Number of seconds (at 15 FPS).'
 )
 args = parser.parse_args()
 
 initial_seconds = 1
 fps = 15
+
 
 colors = [
     np.array([[31,119,180]]),
@@ -103,7 +104,7 @@ def invert_pixel(pix):
         d[i] = (256 - d[i])%256
     return d
 
-def grid_from_image(img,w,h, colors):
+def grid_from_image(img, w, h, colors):
     grid = np.zeros((w,h))
     for i in range(w):
         for j in range(h):
@@ -119,13 +120,13 @@ def make_image(frame_i, grid, image):
     resize_factor = 8
     out_image = cv2.resize(
         image,
-        (resize_factor * args.width, resize_factor * args.height),
+        (resize_factor * args.height, resize_factor * args.width),
         interpolation=cv2.INTER_NEAREST
     )
     cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
 
-def gen_frames_rps(grid,width,height, num_colors):
-    image = np.zeros((args.height,args.width, 3), dtype=np.uint8)
+def gen_frames_rps(grid, width,height, num_colors):
+    image = np.zeros((args.width,args.height, 3), dtype=np.uint8)
 
     initial_frames = initial_seconds * fps
     for frame_i in tqdm(range(initial_frames)):
@@ -137,10 +138,10 @@ def gen_frames_rps(grid,width,height, num_colors):
         grid = update(grid)
 
 def gen_frames_gol(grid,width,height):
-    cb = ca.cellBoard(height, width)
+    cb = ca.cellBoard(width, height)
     cb.setGrid(grid)
 
-    image = np.zeros((args.height, args.width, 3), dtype=np.uint8)
+    image = np.zeros((args.width, args.height, 3), dtype=np.uint8)
 
     initial_frames = initial_seconds * fps
     for frame_i in tqdm(range(initial_frames)):
@@ -158,11 +159,11 @@ if __name__ == '__main__':
     Path('frames').mkdir(exist_ok=True)
     w,h,c = args.width, args.height, args.num_colors
 
-    img = cv2.imread('img-assets/MarioHeadSSBM.png')
-    img2 = invert_img(img,w,h)
-    grid = grid_from_image(img2,w,h,c)
-   
+    img = cv2.imread('img-assets/jolong.png')
+    # img2 = invert_img(img,w,h)
+    grid = grid_from_image(img,w,h,c)
 
+   
     gen_frames_rps(grid, w, h, c)
 
     
