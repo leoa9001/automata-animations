@@ -1,1 +1,1 @@
-python3 rps_automata.py --width 112 --height 80 --num-colors 9 --neighbour-threshold 2 --seconds 10
+python3 rps_automata.py --width 24 --height 24 --num-colors 3 --neighbour-threshold 2 --seconds 5

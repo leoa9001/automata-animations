@@ -5,7 +5,7 @@ import time
 import numpy as np
 
 
-class cellBoard:
+class CellBoard:
 	w,h = None, None
 	board, boardAux = None, None
 	windowAux = None
@@ -99,17 +99,18 @@ class cellBoard:
 		return -1
 
 
+class RPSBoard(CellBoard):
+	
+
+
+
 #testing shit
 if __name__ == '__main__':
-	t0 = time.perf_counter()
-	iter = 50
-	cb = cellBoard(100,100)
-	cb.setRandomPrintTime()
-	for i in range(iter):
-		cb.updateBoard()
+	a = TestBoard(5,5)
+	a.setRandom()
+	a.updateBoard()
+	print(a.getBoard())
 
-	t1 = time.perf_counter()
-	print("Time Elapsed is ", t1-t0, " seconds.")
 
 
 

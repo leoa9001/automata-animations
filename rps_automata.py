@@ -117,6 +117,7 @@ def make_image(frame_i, grid, image):
         mask = grid == i
         image[mask] = colors[i]
 
+
     resize_factor = 8
     out_image = cv2.resize(
         image,
@@ -138,7 +139,7 @@ def gen_frames_rps(grid, width,height, num_colors):
         grid = update(grid)
 
 def gen_frames_gol(grid,width,height):
-    cb = ca.cellBoard(width, height)
+    cb = ca.CellBoard(width, height)
     cb.setGrid(grid)
 
     image = np.zeros((args.width, args.height, 3), dtype=np.uint8)
@@ -159,8 +160,11 @@ if __name__ == '__main__':
     Path('frames').mkdir(exist_ok=True)
     w,h,c = args.width, args.height, args.num_colors
 
-    img = cv2.imread('img-assets/jolong.png')
+    print("Width: " + str(w) + ", Height: "+str(h)+", numcol: "+str(c))
+    print("Seconds: "+ str(args.seconds))
+    img = cv2.imread('img-assets/blackdk.png')
     # img2 = invert_img(img,w,h)
+    # cv2.imwrite("outputs/blackdkneg.png",img2)
     grid = grid_from_image(img,w,h,c)
 
    
