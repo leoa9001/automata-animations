@@ -2,6 +2,7 @@ import random
 import sys
 import os
 import time
+from scipy.signal import convolve2d
 import numpy as np
 
 
@@ -9,6 +10,7 @@ class CellBoard:
 	w,h = None, None
 	board, boardAux = None, None
 	windowAux = None
+	num_states = 2
 
 	def __init__(self, width, height):
 		self.w = width
@@ -17,8 +19,6 @@ class CellBoard:
 		self.boardAux = np.zeros((width,height))
 		self.windowAux = [[0 for x in range(3)] for y in range(3)]
 
-
-	#Specifying data methods/functions. 
 
 	def printBoard(self):
 		print("---")
@@ -31,10 +31,10 @@ class CellBoard:
 		self.board = grid 
 
 
-	def setRandom(self):
+	def setRandom(self,rg):
 		for i in range(self.w):
 			for j in range(self.h):
-				self.board[i][j] = random.randint(0,1)
+				self.board[i][j] = random.randint(0,rg)
 
 	def getBoard(self):
 		return self.board
@@ -100,14 +100,51 @@ class CellBoard:
 
 
 class RPSBoard(CellBoard):
-	
+	neighbor_threshold = None
+	num_states = None
+
+	convolution = np.array(
+    [[1, 1, 1],
+     [1, 0, 1],
+     [1, 1, 1]]
+    )
+
+	def __init__(self,width,height,nstate,nthresh):
+		super().__init__(width,height)
+		self.neighbor_threshold = nthresh
+		self.num_states = nstate
+
+	def updateBoard(self):
+		grid = self.board
+		new_grid = np.copy(grid)
+
+		color_grids = [grid == i for i in range(self.num_states)]
+
+		ns = np.arange(self.num_states)
+		for i, j in zip(ns, np.roll(ns, 1)):
+			target_mask = color_grids[i]
+			neighbor_grid = color_grids[j]
+			neighbor_mask = convolve2d(
+			neighbor_grid,
+			self.convolution,
+			mode='same',
+			boundary='wrap'
+			) >= self.neighbor_threshold
+
+			mask = np.logical_and(
+				target_mask,
+				neighbor_mask
+			)
+			new_grid[mask] = j
+
+		self.board = new_grid
 
 
 
 #testing shit
 if __name__ == '__main__':
-	a = TestBoard(5,5)
-	a.setRandom()
+	a = RPSBoard(5,5,4,2)
+	a.setRandom(3)
 	a.updateBoard()
 	print(a.getBoard())
 

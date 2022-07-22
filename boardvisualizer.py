@@ -45,21 +45,21 @@ class BoardVisualizer:
 
 
 	#defined from a board
-	def __init__(self, cb, nc):
+	def __init__(self, cb):
 		self.board = cb
 		gr = self.board.getBoard()
 		self.width = gr.shape[0]
 		self.height = gr.shape[1]
-		self.num_colors = nc
+		self.num_colors = cb.num_states
 
 	def dist_pt(self,p1, p2):
 	    return np.sum(np.square(p1 - p2))
 
 	def closest_color_index(self,pix, maxind):
 	    index = 0
-	    dist = dist_pt(pix, self.colors[0])
+	    dist = self.dist_pt(pix, self.colors[0])
 	    for i in range(1, maxind):
-	        dist2 = dist_pt(pix, self.colors[i])
+	        dist2 = self.dist_pt(pix, self.colors[i])
 	        if dist2 < dist:
 	            dist = dist2
 	            index = i
@@ -69,7 +69,7 @@ class BoardVisualizer:
 	    img2 = np.zeros((w,h,3), dtype = np.uint8)
 	    for i in range(w):
 	        for j in range(h):
-	            img2[i][j] = invert_pixel(img[i][j])
+	            img2[i][j] = self.invert_pixel(img[i][j])
 	    return img2
 
 	def invert_pixel(self, pix):
@@ -78,16 +78,18 @@ class BoardVisualizer:
 	        d[i] = (256 - d[i])%256
 	    return d
 
-	def grid_from_image(self, img, w, h, colors):
+	def grid_from_image(self, img, w, h):
 	    grid = np.zeros((w,h))
 	    for i in range(w):
 	        for j in range(h):
-	            grid[i][j] = closest_color_index(img[i][j],colors)
+	            grid[i][j] = self.closest_color_index(img[i][j],self.num_colors)
 	    return grid
+
+
 
 	def make_image(self, frame_i, grid, image):
 	    for i in range(self.num_colors):
-	        mask = grid == i
+	        mask = (grid == i)
 	        image[mask] = self.colors[i]
 
 
@@ -117,10 +119,14 @@ class BoardVisualizer:
 
 if __name__ == '__main__':
 
-	cb0 = ca.CellBoard(30,30)
-	cb0.setRandom()
-	bv = BoardVisualizer(cb0,2)
-	bv.gen_frames(1,5,15)
+	img = cv2.imread("img-assets/MarthHeadSSBM.png")
+
+	cb0 = ca.RPSBoard(24,24,9,1)
+	# cb0.setRandom(8)
+	# # print(cb0.num_colors)
+	bv = BoardVisualizer(cb0)
+	bv.board.setGrid(bv.grid_from_image(img,24,24))
+	bv.gen_frames(1,10,15)
 
 
 
