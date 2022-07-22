@@ -4,6 +4,7 @@ import cv2
 from tqdm import tqdm
 import argparse
 from pathlib import Path
+from PIL import ImageColor
 
 import CellAutomata as ca
 
@@ -27,9 +28,10 @@ class BoardVisualizer:
 	board = None
 	width,height = None, None
 	num_colors = None
+	frame_num = 0
 
 
-	black = [255,255,255]
+	border_color = [255,255,255]
 	colors = [
 	    np.array([[31,119,180]]),
 	    np.array([[255,127,14]]),
@@ -51,6 +53,30 @@ class BoardVisualizer:
 		self.width = gr.shape[0]
 		self.height = gr.shape[1]
 		self.num_colors = cb.num_states
+
+	#not best practice to use this but you can append frames/framenums this way. 
+	def reset_board(self,cb):
+		self.board = cb
+		gr = self.board.getBoard()
+		self.width = gr.shape[0]
+		self.height = gr.shape[1]
+		self.num_colors = cb.num_states
+
+	#like the end of a coolors.com url hex_string with - separating them
+	def swap_palette(self, hex_string):
+		hs = hex_string.split("-")
+		l = len(hs)
+		c = np.zeros((l,3))
+		for i in range(l):
+			a = ImageColor.getcolor("#"+hs[i], "RGB")
+			c[i][0] = a[2]
+			c[i][1] = a[1]
+			c[i][2] = a[0]
+		self.colors = c
+
+
+
+	#random image processing functions
 
 	def dist_pt(self,p1, p2):
 	    return np.sum(np.square(p1 - p2))
@@ -78,13 +104,15 @@ class BoardVisualizer:
 	        d[i] = (256 - d[i])%256
 	    return d
 
+
+	#cellboards -> frames
+
 	def grid_from_image(self, img, w, h):
 	    grid = np.zeros((w,h))
 	    for i in range(w):
 	        for j in range(h):
 	            grid[i][j] = self.closest_color_index(img[i][j],self.num_colors)
 	    return grid
-
 
 
 	def make_image(self, frame_i, grid, image):
@@ -101,32 +129,29 @@ class BoardVisualizer:
 	    )
 	    cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
 
+
 	def gen_frames(self, initial_seconds, seconds,fps):
 		Path('frames').mkdir(exist_ok=True)
+		fn = self.frame_num
 		
 		image = np.zeros((self.width, self.height, 3), dtype=np.uint8)
 		grid = self.board.getBoard()
 
 		initial_frames = initial_seconds * fps
-		for frame_i in tqdm(range(initial_frames)):
+		for frame_i in tqdm(range(fn, fn + initial_frames)):
 			self.make_image(frame_i, grid, image)
 
 		subsequent_frames = seconds * fps
-		for frame_i in tqdm(range(initial_frames, initial_frames + subsequent_frames)):
+		fn += initial_frames
+		for frame_i in tqdm(range(fn, fn + subsequent_frames)):
 			self.make_image(frame_i, grid, image)
 			self.board.updateBoard()
 			grid = self.board.getBoard()
 
+		self.frame_num = fn+subsequent_frames
+
 if __name__ == '__main__':
-
-	img = cv2.imread("img-assets/MarthHeadSSBM.png")
-
-	cb0 = ca.RPSBoard(24,24,9,1)
-	# cb0.setRandom(8)
-	# # print(cb0.num_colors)
-	bv = BoardVisualizer(cb0)
-	bv.board.setGrid(bv.grid_from_image(img,24,24))
-	bv.gen_frames(1,10,15)
+	pass
 
 
 

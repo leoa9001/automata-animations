@@ -30,11 +30,10 @@ class CellBoard:
 	def setGrid(self,grid):
 		self.board = grid 
 
-
-	def setRandom(self,rg):
+	def setRandom(self):
 		for i in range(self.w):
 			for j in range(self.h):
-				self.board[i][j] = random.randint(0,rg)
+				self.board[i][j] = random.randint(0,self.num_states - 1)
 
 	def getBoard(self):
 		return self.board
@@ -140,11 +139,16 @@ class RPSBoard(CellBoard):
 		self.board = new_grid
 
 
+	#Make an automatan based on a matchup chart. 
+	class MatchUpBoard(CellBoard):
+		pass
+
+
 
 #testing shit
 if __name__ == '__main__':
 	a = RPSBoard(5,5,4,2)
-	a.setRandom(3)
+	a.setRandom()
 	a.updateBoard()
 	print(a.getBoard())
 
