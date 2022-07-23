@@ -6,3 +6,5 @@ img-assets/*
 __pycache__/CellAutomata.cpython-39.pyc
 *.pyc
 main.py
+assets/*
+

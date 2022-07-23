@@ -75,6 +75,9 @@ class CellBoard:
 				else:
 					window[k][l] = self.board[a][b]
 
+		return self.windowUpdate(window)
+
+	def windowUpdate(self, window):
 		return self.conwayUpdate(window)
 
 
@@ -139,9 +142,63 @@ class RPSBoard(CellBoard):
 		self.board = new_grid
 
 
-	#Make an automatan based on a matchup chart. 
-	class MatchUpBoard(CellBoard):
-		pass
+#Make an automatan based on a matchup chart. 
+class MatchUpBoard(CellBoard):
+	muChart = None
+	neighbor_threshold = None
+
+	#n is number of alternates in chart text
+	def __init__(self, width, height, n, nt, path_to_chart):
+		super().__init__(width,height)
+		self.num_states = n
+		self.neighbor_threshold = nt
+		self.load_chart(n,path_to_chart)
+
+	def load_chart(self, n, path_to_chart):
+		muC = np.zeros((n,n))
+		f = open(path_to_chart,"r")
+		i = 0
+		for line in f:
+			if(i >= n):
+				pass
+			else:
+				nums = line.split(" ")
+				for j in range(n):
+					muC[i][j] = int(nums[j])
+			i+=1
+		self.muChart = muC
+		f.close()
+
+	#weighted average, threshold?, we'll see. we'll find largest avg and see who wins it. 
+	def windowUpdate(self, window):
+		counts = np.zeros((self.num_states),dtype = np.uint8)
+		#make counter and if positive and above threshold move on!
+		ind_char = int(window[1][1])
+		if ind_char == -1:
+			return -1
+		maxcount = 0
+		max_ind = ind_char
+
+
+		for i in range(3):
+			for j in range(3):
+				char = int(window[i][j])
+				if(char==-1):
+					pass
+				elif((i!= 1 or j!=1) and (int(self.muChart[char][ind_char]) > 0)):
+					counts[char]+=1
+
+		for i in range(len(counts)):
+			if(counts[i] > maxcount):
+				maxcount = counts[i]
+				max_ind = i
+
+		if(maxcount >= self.neighbor_threshold):
+			return max_ind
+
+		return ind_char
+
+
 
 
 

@@ -13,19 +13,23 @@ import boardvisualizer as BV
 
 if __name__ == '__main__':
 
-	img = cv2.imread("img-assets/JigglypuffHeadSSBM.png")
+	img = cv2.imread("img-assets/YoshiHeadSSBM.png")
 
-	print(img.shape)
+	# print(img.shape)
 
-	cb2 = ca.RPSBoard(24,24,3,3)
-	# cb2.setRandom()
+	# cb2 = ca.MatchUpBoard(10,10, 26, 2, "assets/MeleeMUChart.txt")
+	cb2 = ca.MatchUpBoard(24,24,10,3,"assets/MeleeMUChart.txt")
+	cb2.setRandom()
 
-	bv = BV.IconVisualizer(cb2,"img-assets/icons/",3)
-	# bv = BV.IconVisualizer(cb2)
-	bv.swap_palette("30ff5d-5bfa7d-30ff9f-4cff30-25eb50")
+
+	bv = BV.IconVisualizer(cb2,"img-assets/meleecon/")
+
+
 	bv.board.setGrid(bv.grid_from_image(img,img.shape[0],img.shape[1]))
-	bv.swap_palette("cae7b9-f3de8a-eb9486-7e7f9a-97a7b3")
-	bv.gen_frames(1,10,15)
+
+	bv.gen_frames(1,10,8)
+
+
 
 	#neon: f8ff30-5afafa-ff30be-ff9b30-25eb50
 	#nice one: cae7b9-f3de8a-eb9486-7e7f9a-97a7b3

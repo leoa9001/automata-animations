@@ -156,8 +156,9 @@ class IconVisualizer(BoardVisualizer):
 	icon_dim = None
 
 	#load square icons
-	def __init__(self,board, path_to_icon, num_icons):
+	def __init__(self,board, path_to_icon):
 		super().__init__(board)
+		num_icons = board.num_states
 		self.icons = [0 for x in range(num_icons)]
 		for i in range(num_icons):
 			self.icons[i] = cv2.imread(path_to_icon+str(i)+".png")
@@ -169,7 +170,7 @@ class IconVisualizer(BoardVisualizer):
 
 		for i in range(self.width):
 			for j in range(self.height):
-				out_image[idim*i:idim*(i+1),idim*j:idim*(j+1)] = self.icons[int(grid[i][j])]
+				out_image[idim*i:idim*(i+1),idim*j:idim*(j+1)] = self.icons[int(grid[i][j])] 
 		cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
 
 
