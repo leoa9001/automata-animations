@@ -13,18 +13,18 @@ import boardvisualizer as BV
 
 if __name__ == '__main__':
 
-	img = cv2.imread("img-assets/YoshiHeadSSBM.png")
+	img = cv2.imread("img-assets/jo.png")
 
 	# print(img.shape)
 
 	# cb2 = ca.MatchUpBoard(10,10, 26, 2, "assets/MeleeMUChart.txt")
-	cb2 = ca.MatchUpBoard(24,24,10,3,"assets/MeleeMUChart.txt")
+	cb2 = ca.MatchUpBoard(img.shape[0],img.shape[1],26,3,"assets/MeleeMUChart.txt")
 	cb2.setRandom()
 
 
 	bv = BV.IconVisualizer(cb2,"img-assets/meleecon/")
 
-
+	bv.set_palette_from_icons()
 	bv.board.setGrid(bv.grid_from_image(img,img.shape[0],img.shape[1]))
 
 	bv.gen_frames(1,10,8)

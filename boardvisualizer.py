@@ -105,6 +105,17 @@ class BoardVisualizer:
 	        d[i] = (256 - d[i])%256
 	    return d
 
+	def avg_pixel(self, img):
+		run_sum = np.zeros((3))
+		run_sum[0] = np.sum(img[:,:,0])
+		run_sum[1] = np.sum(img[:,:,1])
+		run_sum[2] = np.sum(img[:,:,2])
+
+		run_sum = (1/(img.shape[0]*img.shape[1]))*run_sum
+		for i in range(3):
+			run_sum[i] = int(run_sum[i])
+		return run_sum
+
 
 	#cellboards -> frames
 
@@ -163,6 +174,12 @@ class IconVisualizer(BoardVisualizer):
 		for i in range(num_icons):
 			self.icons[i] = cv2.imread(path_to_icon+str(i)+".png")
 		self.icon_dim = (self.icons[0]).shape[0]
+
+	def set_palette_from_icons(self):
+		col = np.zeros((len(self.icons),3))
+		for i in range(len(self.icons)):
+			col[i] = self.avg_pixel(self.icons[i])
+		self.colors = col 
 
 	def make_image(self, frame_i, grid, image):
 		idim = self.icon_dim
