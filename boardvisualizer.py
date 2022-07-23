@@ -11,10 +11,6 @@ import CellAutomata as ca
 
 
 
-# make two classes: 
-# rps_automata as the updater 
-# visualizer: as code for taking grids and generating frames etc. 
-
 
 #visualizer: Should maintain a cellboard and then be able to
 #1 generate frames from a given cellboard/grid
@@ -31,6 +27,7 @@ class BoardVisualizer:
 	frame_num = 0
 
 
+
 	border_color = [255,255,255]
 	colors = [
 	    np.array([[31,119,180]]),
@@ -44,6 +41,10 @@ class BoardVisualizer:
 	    np.array([[188, 189, 34]]),
 	    np.array([[23, 190, 207]])
 	]
+
+	icons = None
+	icon_dim = None
+
 
 
 	#defined from a board
@@ -149,6 +150,29 @@ class BoardVisualizer:
 			grid = self.board.getBoard()
 
 		self.frame_num = fn+subsequent_frames
+
+class IconVisualizer(BoardVisualizer):
+	icons = None
+	icon_dim = None
+
+	#load square icons
+	def __init__(self,board, path_to_icon, num_icons):
+		super().__init__(board)
+		self.icons = [0 for x in range(num_icons)]
+		for i in range(num_icons):
+			self.icons[i] = cv2.imread(path_to_icon+str(i)+".png")
+		self.icon_dim = (self.icons[0]).shape[0]
+
+	def make_image(self, frame_i, grid, image):
+		idim = self.icon_dim
+		out_image = np.zeros((idim*self.width,idim*self.height,3),dtype = np.uint8)
+
+		for i in range(self.width):
+			for j in range(self.height):
+				out_image[idim*i:idim*(i+1),idim*j:idim*(j+1)] = self.icons[int(grid[i][j])]
+		cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
+
+
 
 if __name__ == '__main__':
 	pass
