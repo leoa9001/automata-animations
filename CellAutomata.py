@@ -6,6 +6,9 @@ from scipy.signal import convolve2d
 import numpy as np
 
 
+#Default Cell Board Class. Default behavior treats it as a game of life cell automata. 
+# standard usage uses: __init__(), setGrid(), getBoard(), updateBoard()
+# subclasses: RPSBoard, RPSSpockBoard, MatchUpBoard
 class CellBoard:
 	w,h = None, None
 	board, boardAux = None, None
@@ -142,6 +145,65 @@ class RPSBoard(CellBoard):
 		self.board = new_grid
 
 
+
+#compares cells on boundary and updates with maximum value when weighted by sums of compare. 
+#default behavior is RPSSpockBoard
+class CompareBoard(CellBoard):
+	threshold = None
+
+	def __init__(self,width,height,nstate,nthresh):
+		super().__init__(width,height)
+		self.threshold = nthresh
+		self.num_states = nstate
+
+
+	#returns maximal border for transition if any reach a sum > 0
+	def windowUpdate(self,window):
+		ind_char = window[1][1]
+		if(ind_char == -1):
+			return -1
+
+		counts = [0]* self.num_states
+
+		maxcount = 0
+		max_ind = ind_char
+
+		for i in range(3):
+			for j in range(3):
+				char = int(window[i][j])
+				if (char==-1):
+					pass
+				elif(i!= 1 or j!=1):
+					counts[char] += self.compare(char,ind_char)
+
+		for i in range(len(counts)):
+			if(counts[i] > maxcount): #>= should prioritize states with higher index. > prioritizes lower states
+				maxcount = counts[i]
+				max_ind = i
+
+		if(maxcount >= self.threshold):
+			return max_ind
+
+		return ind_char
+
+	#returns amount a beats b
+	#default is RPSSpock compare cause why not. 
+	def compare(self, a, b):
+		m = b-a
+		if m < 0:
+			m = self.num_states+m
+		if m==0:
+			return 0
+		elif m%2==1:
+			return 1
+		return -1
+
+
+
+class RPSSpockBoard(CompareBoard):
+	pass
+
+
 #Make an automatan based on a matchup chart. 
 class MatchUpBoard(CellBoard):
 	muChart = None
@@ -173,9 +235,11 @@ class MatchUpBoard(CellBoard):
 	def windowUpdate(self, window):
 		counts = np.zeros((self.num_states),dtype = np.uint8)
 		#make counter and if positive and above threshold move on!
+
 		ind_char = int(window[1][1])
 		if ind_char == -1:
 			return -1
+
 		maxcount = 0
 		max_ind = ind_char
 
@@ -189,7 +253,7 @@ class MatchUpBoard(CellBoard):
 					counts[char]+=1
 
 		for i in range(len(counts)):
-			if(counts[i] > maxcount):
+			if(counts[i] > maxcount): #>= should prioritize states with higher index. > prioritizes lower states
 				maxcount = counts[i]
 				max_ind = i
 
@@ -198,14 +262,21 @@ class MatchUpBoard(CellBoard):
 
 		return ind_char
 
+	def compare(self, a, b):
+		val = int(self.muChart[a][b])
+		if val > 0:
+			return 1
+		return 0
+
 
 
 
 
 #testing shit
 if __name__ == '__main__':
-	a = RPSBoard(5,5,4,2)
+	a = RPSSpockBoard(3,3,3,3)
 	a.setRandom()
+	a.printBoard()
 	a.updateBoard()
 	print(a.getBoard())
 

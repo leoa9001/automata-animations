@@ -15,8 +15,8 @@ import CellAutomata as ca
 #visualizer: Should maintain a cellboard and then be able to
 #1 generate frames from a given cellboard/grid
 #recolor etc. 
-# initialize/edit and have the counting boards. 
-#this is not the parser we'll add a main.py
+#2 initialize/edit and have the counting boards. 
+#this is not the parser 
 
 
 class BoardVisualizer:
@@ -64,7 +64,7 @@ class BoardVisualizer:
 		self.num_colors = cb.num_states
 
 	#like the end of a coolors.com url hex_string with - separating them
-	def swap_palette(self, hex_string):
+	def set_palette(self, hex_string):
 		hs = hex_string.split("-")
 		l = len(hs)
 		c = np.zeros((l,3))
