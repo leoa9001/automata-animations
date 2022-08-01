@@ -159,7 +159,7 @@ class CompareBoard(CellBoard):
 
 	#returns maximal border for transition if any reach a sum > 0
 	def windowUpdate(self,window):
-		ind_char = window[1][1]
+		ind_char = int(window[1][1])
 		if(ind_char == -1):
 			return -1
 
@@ -205,15 +205,12 @@ class RPSSpockBoard(CompareBoard):
 
 
 #Make an automatan based on a matchup chart. 
-class MatchUpBoard(CellBoard):
+class MatchUpBoard(CompareBoard):
 	muChart = None
-	neighbor_threshold = None
 
 	#n is number of alternates in chart text
 	def __init__(self, width, height, n, nt, path_to_chart):
-		super().__init__(width,height)
-		self.num_states = n
-		self.neighbor_threshold = nt
+		super().__init__(width,height,n,nt)
 		self.load_chart(n,path_to_chart)
 
 	def load_chart(self, n, path_to_chart):
@@ -231,42 +228,16 @@ class MatchUpBoard(CellBoard):
 		self.muChart = muC
 		f.close()
 
-	#weighted average, threshold?, we'll see. we'll find largest avg and see who wins it. 
-	def windowUpdate(self, window):
-		counts = np.zeros((self.num_states),dtype = np.uint8)
-		#make counter and if positive and above threshold move on!
-
-		ind_char = int(window[1][1])
-		if ind_char == -1:
-			return -1
-
-		maxcount = 0
-		max_ind = ind_char
-
-
-		for i in range(3):
-			for j in range(3):
-				char = int(window[i][j])
-				if(char==-1):
-					pass
-				elif((i!= 1 or j!=1) and (int(self.muChart[char][ind_char]) > 0)):
-					counts[char]+=1
-
-		for i in range(len(counts)):
-			if(counts[i] > maxcount): #>= should prioritize states with higher index. > prioritizes lower states
-				maxcount = counts[i]
-				max_ind = i
-
-		if(maxcount >= self.neighbor_threshold):
-			return max_ind
-
-		return ind_char
-
+	#unweighted match up score. 
 	def compare(self, a, b):
 		val = int(self.muChart[a][b])
 		if val > 0:
 			return 1
 		return 0
+
+class WeightedMatchUpBoard(MatchUpBoard):
+	def compare(self, a, b):
+		return self.muChart[a][b]
 
 
 

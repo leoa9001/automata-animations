@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
 
 	# cb2 = ca.MatchUpBoard(10,10, 26, 2, "assets/MeleeMUChart.txt")
-	cb2 = ca.MatchUpBoard(w,h,26,3,"assets/MeleeMUChart.txt")
+	cb2 = ca.WeightedMatchUpBoard(w,h,26,3,"assets/MeleeMUChart.txt")
 
 	# cb3 = ca.RPSSpockBoard(w,h,9,3)
 
@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
 	# cb2 = ca.MatchUpBoard(150,150,18,2,"assets/poke-chart.txt")
 
-	# cb2.setRandom()
+	cb2.setRandom()
 
 
 	bv = BV.IconVisualizer(cb2,"img-assets/meleecon/")
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
 	bv.set_palette_from_icons()
 
-	bv.board.setGrid(bv.grid_from_image(img,img.shape[0],img.shape[1]))
+	# bv.board.setGrid(bv.grid_from_image(img,img.shape[0],img.shape[1]))
 	
 	# bv.board.setRandom()
 	# bv.board.setGrid(rand_grid(w,h, range(0,26)))
