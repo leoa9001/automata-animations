@@ -1,4 +1,5 @@
 import numpy as np
+import exc
 
 
 
@@ -49,7 +50,7 @@ class BoardGeometry:
 
 		#Checking for corners
 		if((i==-1 or i ==d0) and (j==-1 or j==d1)):
-			tup = corners[(grid_ind,i,j)]
+			tup = self.corners[(grid_ind,i,j)]
 			return self.grids[tup[0]][tup[1]][tup[2]]
 
 		#finding the correct transversal
@@ -101,19 +102,19 @@ class BoardGeometry:
 				stitching[s0] = (s1[0],s1[1],sign)
 				stitching[s1] = (s0[0],s0[1],sign)
 
-		#corner check
-		# for i in len(self.grids):
-		# 	self.corner_check(i,0,0)
-		# 	self.corner_check(i,1,0)
-		# 	self.corner_check(i,0,1)
-		# 	self.corner_check(i,1,1)
-
 		self.stitching = stitching
-		self.corners = corners
+		#corner check
+		self.corners = {}
+		for i in range(len(self.grids) - 1):
+			self.corner_init(i,0,0)
+			self.corner_init(i,1,0)
+			self.corner_init(i,0,1)
+			self.corner_init(i,1,1)
 
 	#returns the transverse of grid 
 	# note x is the vertical dimension. also the first dimsnion. 
-	#Test: the transversal of a tranvseral should be itself. NOT YET ERROR TESTED. 
+	#Test: the transversal of a tranvseral should be itself. This has been tested some for an edge on RP2
+	#format: (self, grid index, grid side, coord0, coord1) coords are adjacent to edge
 	def transversal(self,i,s,x,y):
 		if(not(self.verify(i,s,x,y))):
 			raise RuntimeError('Transverse error on Grid '+ str(i)+ ", edge "+str(s)+", at ("+str(x)+","+str(y)+").") from exc
@@ -156,7 +157,6 @@ class BoardGeometry:
 
 
 
-
 	#returns true if (a,b) is on edge s in grid i
 	def verify(self, i,s,x,y):
 		d0 = self.grids[i].shape[0]
@@ -166,23 +166,91 @@ class BoardGeometry:
 
 		return (s==0 and y==0) or (s==1 and x==0) or (s==2 and y==d1-1) or (s==3 and x==d0-1)
 
-	# def corner_check(i,a,b):
-	# 	grid = self.grids[i]
-	# 	corners = self.corners
-	# 	if((a,b)==(0,0)):
-	# 		j_tup = self.transversal(i,0,0,0)
-	# 		if(j_tup[0]==-1):
-	# 			corners[[i,-1,-1]] = [-1,-1,-1]
-	# 		elif()
-	# 	elif((a,b)==(0,1)):
+
+	#returns tuple of form ((grid_ind, s1), (grid_ind,s2)) of adjacent edges to 
+	def adjacent_edges(self, grid_ind, i,j):
+		grid = self.grids[grid_ind]
+		d0 = grid.shape[0]
+		d1 = grid.shape[1]
+
+		if(i==0 and j==0):
+			return ((grid_ind,0),(grid_ind,1))
+		elif(i==0 and j==d1-1):
+			return ((grid_ind,1),(grid_ind,2))
+		elif(i== d0-1 and j == d1-1):
+			return ((grid_ind,2),(grid_ind,3))
+		elif(i== d0-1 and j==0):
+			return ((grid_ind,0),(grid_ind,3))
+		else:
+			# raise RuntimeError("Adjacent edge run on non-corner: ("+str(i)+","+str(j)+")") from exc
+			print("ADJACENT EDGE RUN ON NON-CORNER: ("+str(i)+","+str(j)+")")
+			print("Dimensions: ("+str(d0)+","+str(d1)+")")
+
+	#on a corner, double transversal through corners and return the result. 
+	def corner_double_traversal(self, grid_ind, grid_side,i,j):
+		tv1 = self.transversal(grid_ind,grid_side,i,j)
+
+		if(tv1[0]==-1): #unstitched case. 
+			return (-1,-1,-1)
+
+		in_side = (tv1[0],tv1[1])
+		corner = (tv1[2],tv1[3])
+		sides = self.adjacent_edges(tv1[0], corner[0],corner[1])
+		out_side = (-1,-1)
+		if(sides[0]==in_side):
+			out_side = sides[1]
+		elif(sides[1]==in_side):
+			out_side = sides[0]
+		else:
+			print(sides)
+			print(in_side)
+			raise RuntimeError("Adjacent side error") from exc
+
+		tv2 = self.transversal(out_side[0],out_side[1],corner[0],corner[1])
+
+		return (tv2[0],tv2[2],tv2[3])
+
+
+	#fills in the corners dictionary with pairs that go from an out of bounds grid to the relevant corner it should go to
+	# if a corner's double traversals end in unstitched or inconsistent, it sets the corner destination (-1,-1,-1)
+	#(a,b) in {0,1}^2
+	def corner_init(self,i,a,b):
+		grid = self.grids[i]
+		d0 = grid.shape[0]
+		d1 = grid.shape[1]
+		x = (d0-1)*a
+		y = (d1-1)*b
+		corners = self.corners
+		
+
+		adj = self.adjacent_edges(i,x,y)
+
+		dbl_tv1 = self.corner_double_traversal(i,adj[0][1],x,y)
+		dbl_tv2 = self.corner_double_traversal(i,adj[1][1],x,y)
+
+		c0,c1 = -2,-2
+		if(a==0):
+			c0 = -1
+		elif (a==1):
+			c0 = d0
+
+		if(b==0):
+			c1 = -1
+		elif(b==1):
+			c1 = d1
+
+		if(c0==-2 or c1==-2):
+			raise RuntimeError("invalid corner init input") from exc
+
+
+		if(dbl_tv1==dbl_tv2):
+			self.corners[(i,c0,c1)] = dbl_tv1
+		else:
+			print("CORNER TRANSVERAL INCONSISTENCY AT CORNER: ("+ str(i)+","+str(x)+","+str(y)+")")
+			self.corners[(i,c0,c1)] = (-1,0,0) #send you to the -1 which only has a -1 entry
 
 
 
-
-
-	# 	self.corners = corners
-
-	# # def double_traverse(i,s,j,t):
 
 
 
