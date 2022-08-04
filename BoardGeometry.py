@@ -10,8 +10,10 @@ import exc
 #Update a cell's value
 
 #Standard board geometry: a set of 2-d grids
+#It is almost state-blind. Only -1 and -2 have any meaning as states passed to this code. Other states have no differentiating handling. 
+#-1 corresponds to boundary or outside the grid, -2 generally means an error has happened. -2 shouldn't come up but I'd avoid using it as a state in CA code. 
 class BoardGeometry:
-	grids = None
+	grids = None #note by default, this dictionary has -1st grid with [[-1]] shape. 
 	stitching = None
 	corners = None
 
@@ -41,6 +43,7 @@ class BoardGeometry:
 					window[k][l] = grid[a][b]
 
 		return window
+
 
 
 	def getWrapValue(self, grid_ind, i,j):
@@ -191,7 +194,7 @@ class BoardGeometry:
 		tv1 = self.transversal(grid_ind,grid_side,i,j)
 
 		if(tv1[0]==-1): #unstitched case. 
-			return (-1,-1,-1)
+			return (-1,0,0)
 
 		in_side = (tv1[0],tv1[1])
 		corner = (tv1[2],tv1[3])
@@ -246,30 +249,61 @@ class BoardGeometry:
 		if(dbl_tv1==dbl_tv2):
 			self.corners[(i,c0,c1)] = dbl_tv1
 		else:
-			print("CORNER TRANSVERAL INCONSISTENCY AT CORNER: ("+ str(i)+","+str(x)+","+str(y)+")")
+			# print("CORNER TRANSVERAL INCONSISTENCY AT CORNER: ("+ str(i)+","+str(x)+","+str(y)+")")
 			self.corners[(i,c0,c1)] = (-1,0,0) #send you to the -1 which only has a -1 entry
 
 
 
 
-
-
-
-
-#2 dimensional grid. Probably only used by RPSBoard
+#2 dimensional grid geometries to use ~
 class GridGeometry(BoardGeometry):
-	pass
+	def __init__(self, d0,d1):
+		super().__init__([(d0,d1)], [])
 
 
 class TorusGeometry(BoardGeometry):
-	pass
+	def __init__(self, d0,d1):
+		grid_dims = [(d0,d1)]
+		paste_data = [
+			[(0,0),(0,2),1],
+			[(0,1),(0,3),1]
+		]
+		super().__init__(grid_dims,paste_data)
 
+#projective plane from gluing together two grids. 
 class ProjectivePlaneGeometry(BoardGeometry):
-	pass
+	def __init__(self, d0,d1):
+		grid_dims = [(d0,d1),(d1,d0)]
+		paste_data = [
+						[(0,3),(1,0),-1],
+						[(0,2),(1,1),-1],
+						[(0,0),(1,3),-1],
+						[(0,1),(1,2),1]
+						]
+		super().__init__(grid_dims, paste_data)
 
 class FourGridSphereGeometry(BoardGeometry):
 	pass
 
 class CubeGeometry(BoardGeometry):
-	pass
+	def __init__(self, sidelength):
+		cube_dims = [(sidelength,sidelength)]*6
+		paste_cube = [
+			[(0,0),(5,2),1],
+			[(0,1), (1,0),1],
+			[(0,2), (2,0),1],
+			[(0,3),(3,0),1],
+			[(1,1),(5,1),-1],
+			[(1,2),(4,1),-1],
+			[(1,3),(2,1),1],
+			[(2,2),(4,0),1],
+			[(2,3),(3,1),1],
+			[(3,2),(4,3),1],
+			[(3,3),(5,3),-1],
+			[(4,2),(5,0),1]
+		]
+		super().__init__(cube_dims,paste_cube)
+
+
+
 

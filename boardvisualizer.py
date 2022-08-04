@@ -10,8 +10,6 @@ import CellAutomata as ca
 
 
 
-
-
 #visualizer: Should maintain a cellboard and then be able to
 #1 generate frames from a given cellboard/grid
 #recolor etc. 

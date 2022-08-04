@@ -8,3 +8,5 @@ __pycache__/CellAutomata.cpython-39.pyc
 main.py
 assets/*
 
+BoardLayout
+test.py

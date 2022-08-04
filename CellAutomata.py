@@ -242,7 +242,6 @@ class WeightedMatchUpBoard(MatchUpBoard):
 
 
 
-
 #testing shit
 if __name__ == '__main__':
 	a = RPSSpockBoard(3,3,3,3)
