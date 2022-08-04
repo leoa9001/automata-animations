@@ -11,43 +11,34 @@ import BoardGeometry as BG
 # standard usage uses: __init__(), setGrid(), getBoard(), updateBoard()
 # subclasses: RPSBoard, RPSSpockBoard, MatchUpBoard
 class CellBoard:
-	w,h = None, None
 	board, boardAux = None, None
-	
-	windowAux = None
+
 	num_states = 2
 
-	def __init__(self, width, height):
-		self.w = width
-		self.h = height
-		self.board = np.zeros((width,height))
-		self.boardAux = np.zeros((width,height))
-		self.windowAux = [[0 for x in range(3)] for y in range(3)]
+	def __init__(self, board_geom):
+		self.board = board_geom
+		self.boardAux = self.board.get_isometric()
 
 
 	def printBoard(self):
-		print("---")
-		for x in self.board:
-			print(x)
-		print("---")
+		self.board.printBoard()
 
-	#pass np ndarray
+	#pass np ndarray just sets grid 0 for now. 
 	def setGrid(self,grid):
-		self.board = grid 
+		self.board.setGrid(0,grid)
 
 	def setRandom(self):
-		for i in range(self.w):
-			for j in range(self.h):
-				self.board[i][j] = random.randint(0,self.num_states - 1)
+		self.board.setRandom(self.num_states)
 
+	#for now still just passing one grid. 
 	def getBoard(self):
-		return self.board
+		return self.board.grids[0]
 
 	def setRandomPrintTime(self):
 		t0 = time.perf_counter()
 		self.setRandom()
 		elapsed = time.perf_counter() - t0
-		print("Random ", self.w, " by ", self.h, " board generated in ", elapsed, " seconds.")
+		print("Random board generated in ", elapsed, " seconds.")
 
 	def updatePrint(self):
 		self.updateBoard()
@@ -57,29 +48,21 @@ class CellBoard:
 	#Calculations/Updates
 
 	def updateBoard(self):
-		for i in range(self.w):
-			for j in range(self.h):
-				self.boardAux[i][j] = self.updateCell(i,j)
-
+		for ind in range(self.board.grid_num):
+			grid = self.board.grids[ind]
+			gridAux = self.boardAux.grids[ind]
+			for i in range(grid.shape[0]):
+				for j in range(grid.shape[1]):
+					gridAux[i][j] = self.updateCell(ind,i,j)
 		#Swap board data post update.
 		t = self.board
 		self.board = self.boardAux
 		self.boardAux = t
 
 	#updates the cell at i,j by populating windowAux and passing to an update function. Also been tested!
-	def updateCell(self,i,j):
-		if(self.board[i][j]==-1):
-			return -1
-		window = self.windowAux
-		for k in range(3):
-			for l in range(3):
-				a = i+k-1
-				b = j+l-1
-				if(a < 0 or b < 0 or a >= self.w or b >= self.h):
-					window[k][l] = -1
-				else:
-					window[k][l] = self.board[a][b]
-
+	def updateCell(self,grid_ind,i,j):
+		window = self.board.getWindow(grid_ind,i,j)
+		
 		return self.windowUpdate(window)
 
 	def windowUpdate(self, window):
@@ -106,6 +89,9 @@ class CellBoard:
 		return -1
 
 
+
+##Should not work anymore essentially, since it isn't brought up to the BG std. 
+# you can replicate functionality by using RPSSpockBoard with 3 states, and on TorusGeometry. 
 class RPSBoard(CellBoard):
 	neighbor_threshold = None
 	num_states = None
@@ -153,8 +139,8 @@ class RPSBoard(CellBoard):
 class CompareBoard(CellBoard):
 	threshold = None
 
-	def __init__(self,width,height,nstate,nthresh):
-		super().__init__(width,height)
+	def __init__(self,board_geom,nstate,nthresh):
+		super().__init__(board_geom)
 		self.threshold = nthresh
 		self.num_states = nstate
 

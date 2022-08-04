@@ -40,9 +40,6 @@ class BoardVisualizer:
 	    np.array([[23, 190, 207]])
 	]
 
-	icons = None
-	icon_dim = None
-
 
 
 	#defined from a board

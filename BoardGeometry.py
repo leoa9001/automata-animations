@@ -306,8 +306,18 @@ class TorusGeometry(BoardGeometry):
 		]
 		super().__init__(grid_dims,paste_data)
 
-#projective plane from gluing together two grids. 
+#Two sheet projective plane. 
 class ProjectivePlaneGeometry(BoardGeometry):
+	def __init__(self, d0,d1):
+		grid_dims = [(d0,d1)]
+		paste_data = [
+			[(0,0),(0,2),-1],
+			[(0,1),(0,3),-1]
+		]
+		super().__init__(grid_dims,paste_data)
+		
+#projective plane from gluing together two grids. 
+class TwoSheetProjectivePlaneGeometry(BoardGeometry):
 	def __init__(self, d0,d1):
 		grid_dims = [(d0,d1),(d1,d0)]
 		paste_data = [
