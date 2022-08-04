@@ -4,6 +4,7 @@ import os
 import time
 from scipy.signal import convolve2d
 import numpy as np
+import BoardGeometry as BG
 
 
 #Default Cell Board Class. Default behavior treats it as a game of life cell automata. 
@@ -12,6 +13,7 @@ import numpy as np
 class CellBoard:
 	w,h = None, None
 	board, boardAux = None, None
+	
 	windowAux = None
 	num_states = 2
 
@@ -52,7 +54,7 @@ class CellBoard:
 		self.printBoard()
 
 
-	#Calculations/UPdates
+	#Calculations/Updates
 
 	def updateBoard(self):
 		for i in range(self.w):

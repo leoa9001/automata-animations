@@ -7,7 +7,7 @@ from pathlib import Path
 from PIL import ImageColor
 
 import CellAutomata as ca
-
+import BoardGeometry as bg
 
 
 #visualizer: Should maintain a cellboard and then be able to

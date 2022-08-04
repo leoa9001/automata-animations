@@ -1,3 +1,4 @@
+import random
 import numpy as np
 import exc
 
@@ -14,19 +15,54 @@ import exc
 #-1 corresponds to boundary or outside the grid, -2 generally means an error has happened. -2 shouldn't come up but I'd avoid using it as a state in CA code. 
 class BoardGeometry:
 	grids = None #note by default, this dictionary has -1st grid with [[-1]] shape. 
+	grid_num = None
 	stitching = None
 	corners = None
+	init_data = None
 
 	windowAux = None
 
 	def __init__(self, grid_dims, paste_data):
 		self.grids = {-1: [[-1]]}
+		self.init_data = (grid_dims,paste_data)
+		self.grid_num = len(grid_dims)
 		for i in range(len(grid_dims)):
 			self.grids[i] = np.zeros((grid_dims[i][0],grid_dims[i][1]))
 		self.stitching_from_paste(paste_data)
 		self.windowAux = [[0 for x in range(3)] for y in range(3)]
 
 
+	def setRandom(self, num_states):
+		for i in range(self.grid_num):
+			grid = self.grids[i]
+			for a in range(grid.shape[0]):
+				for b in range(grid.shape[1]):
+					grid[a][b] = random.randint(0,num_states-1)
+
+	def setGrid(self,i, grid):
+		if(i<0 or i>= self.grid_num):
+			print("Grid index out of bounds in setGrid")
+			return
+		d0 = self.grids[i].shape[0]
+		d1 = self.grids[i].shape[1]
+		if(d0 != grid.shape[0] or d1 != grid.shape[1]):
+			print("setGrid shape mismatch")
+
+		self.grids[i] = grid
+
+	def printBoard(self):
+		for i in range(self.grid_num):
+			print("---Grid "+str(i))
+			self.printGrid(self.grids[i])
+
+	def printGrid(self, grid):
+		for x in grid:
+			print(x)
+		print("---")
+
+
+	def get_isometric(self):
+		return BoardGeometry(self.init_data[0],self.init_data[1])
 
 	def getWindow(self,grid_ind,i,j):
 		window = self.windowAux
