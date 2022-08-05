@@ -223,8 +223,12 @@ class CubeLayout(Layout):
 								])
 
 
+class OneFace(Layout):
+	def __init__(self,i):
+		super().__init__((1,1),[[i]])
 
-		
+
+
 
 
 
