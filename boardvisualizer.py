@@ -26,7 +26,7 @@ class BoardVisualizer:
 
 
 
-	border_color = [255,255,255]
+	border_color = [0,0,0]
 	colors = [
 	    np.array([[31,119,180]]),
 	    np.array([[255,127,14]]),
@@ -126,7 +126,8 @@ class BoardVisualizer:
 	    for i in range(self.num_colors):
 	        mask = (grid == i)
 	        image[mask] = self.colors[i]
-
+	    bd_mask = (grid==-1)
+	    image[bd_mask] = self.border_color
 
 	    resize_factor = 8
 	    out_image = cv2.resize(
@@ -157,9 +158,81 @@ class BoardVisualizer:
 
 		self.frame_num = fn+subsequent_frames
 
+
+class LayoutVisualizer(BoardVisualizer):
+	scale_d0, scale_d1 = None,None
+	blank_grid = None
+	layout = None
+
+
+	def __init__(self, cb, d0, d1,layout):
+		super().__init__(cb)
+		self.scale_d0 = d0
+		self.scale_d1 = d1 
+		self.layout = layout
+
+
+	def make_image(self, frame_i, grid, image):
+		sp = self.layout.shape
+		sd0 = self.scale_d0
+		sd1 = self.scale_d1
+		out_image = np.zeros((sp[0]*sd0,sp[1]*sd1,3),dtype = np.uint8)
+		grids = self.board.board.grids
+
+		
+		for i in range(sp[0]):
+			for j in range(sp[1]):
+				grid = grids[self.layout.form[i][j]]
+				if(self.layout.form[i][j]==-1): 
+					pass #fill this in with setting the border grid. 
+				else:
+					out_image[sd0*i:sd0*(i+1),sd1*j:sd1*(j+1)] = self.grid_to_img(grid)
+				
+				
+		cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
+
+	def grid_to_img(self, grid):
+		img = np.zeros((grid.shape[0],grid.shape[1],3),dtype = np.uint8)
+		for i in range(grid.shape[0]):
+			for j in range(grid.shape[1]):
+				col = None
+				state = int(grid[i][j])
+				if(state==-1):
+					col = self.border_color
+				else:
+					col = self.colors[state]
+				img[i][j] = col
+		return img
+
+
+
+class Layout:
+	shape = None
+	form = None
+
+	def __init__(self, shape, form):
+		self.shape = shape 
+		self.form = form
+
+class CubeLayout(Layout):
+	def __init__(self):
+		super().__init__((3,4),[
+								[-1,1,-1,-1],
+								[0,2,4,5],
+								[-1,3,-1,-1]
+								])
+
+
+
+		
+
+
+
 class IconVisualizer(BoardVisualizer):
 	icons = None
+	border_icon = None
 	icon_dim = None
+
 
 	#load square icons
 	def __init__(self,board, path_to_icon):
@@ -168,6 +241,7 @@ class IconVisualizer(BoardVisualizer):
 		self.icons = [0 for x in range(num_icons)]
 		for i in range(num_icons):
 			self.icons[i] = cv2.imread(path_to_icon+str(i)+".png")
+		self.border_icon = cv2.imread(path_to_icon+"border-icon.png")
 		self.icon_dim = (self.icons[0]).shape[0]
 
 	def set_palette_from_icons(self):
@@ -182,7 +256,12 @@ class IconVisualizer(BoardVisualizer):
 
 		for i in range(self.width):
 			for j in range(self.height):
-				out_image[idim*i:idim*(i+1),idim*j:idim*(j+1)] = self.icons[int(grid[i][j])] 
+				if(int(grid[i][j])>=0):
+					out_image[idim*i:idim*(i+1),idim*j:idim*(j+1)] = self.icons[int(grid[i][j])] 
+				elif(int(grid[i][j])==-1):
+					out_image[idim*i:idim*(i+1),idim*j:idim*(j+1)] = self.border_icon
+				else:
+					print("ICON-STATE ISSUE")
 		cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
 
 
