@@ -197,8 +197,8 @@ class MatchUpBoard(CompareBoard):
 	muChart = None
 
 	#n is number of alternates in chart text
-	def __init__(self, width, height, n, nt, path_to_chart):
-		super().__init__(width,height,n,nt)
+	def __init__(self, board_geom, n, nt, path_to_chart):
+		super().__init__(board_geom,n,nt)
 		self.load_chart(n,path_to_chart)
 
 	def load_chart(self, n, path_to_chart):

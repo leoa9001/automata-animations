@@ -297,6 +297,15 @@ class GridGeometry(BoardGeometry):
 		super().__init__([(d0,d1)], [])
 
 
+class CylinderGeometry(BoardGeometry):
+	def __init__(self, d0,d1):
+		super().__init__([(d0,d1)],[[(0,0),(0,2),1]])
+
+class MobiusGeometry(BoardGeometry):
+	def __init__(self, d0,d1):
+		super().__init__([(d0,d1)],[[(0,0),(0,2),-1]])
+
+
 class TorusGeometry(BoardGeometry):
 	def __init__(self, d0,d1):
 		grid_dims = [(d0,d1)]
