@@ -112,7 +112,6 @@ class BoardVisualizer:
 		return run_sum
 
 
-	#cellboards -> frames
 
 	def grid_from_image(self, img, w, h):
 	    grid = np.zeros((w,h))
@@ -121,6 +120,7 @@ class BoardVisualizer:
 	            grid[i][j] = self.closest_color_index(img[i][j],self.num_colors)
 	    return grid
 
+   #cellboards -> frames
 
 	def make_image(self, frame_i, grid, image):
 	    for i in range(self.num_colors):
@@ -159,34 +159,38 @@ class BoardVisualizer:
 		self.frame_num = fn+subsequent_frames
 
 
+#Should move scale handling to 
 class LayoutVisualizer(BoardVisualizer):
-	scale_d0, scale_d1 = None,None
+	dim0, dim1 = None,None
 	blank_grid = None
 	layout = None
+	scale_factor = 4
 
 
-	def __init__(self, cb, d0, d1,layout):
+	#dm0,dm1 are the dimensions of *each grid* full grid is shape dimensions product with such 
+	def __init__(self, cb, dm0, dm1,layout):
 		super().__init__(cb)
-		self.scale_d0 = d0
-		self.scale_d1 = d1 
+		self.dim0 = dm0
+		self.dim1 = dm1 
 		self.layout = layout
 
 
 	def make_image(self, frame_i, grid, image):
 		sp = self.layout.shape
-		sd0 = self.scale_d0
-		sd1 = self.scale_d1
-		out_image = np.zeros((sp[0]*sd0,sp[1]*sd1,3),dtype = np.uint8)
+		d0 = self.scale_factor*self.dim0
+		d1 = self.scale_factor*self.dim1
+
+		out_image = np.zeros((sp[0]*d0,sp[1]*d1,3),dtype = np.uint8)
 		grids = self.board.board.grids
 
-		
+		#loop through shape of layout. 
 		for i in range(sp[0]):
 			for j in range(sp[1]):
 				grid = grids[self.layout.form[i][j]]
 				if(self.layout.form[i][j]==-1): 
 					pass #fill this in with setting the border grid. 
 				else:
-					out_image[sd0*i:sd0*(i+1),sd1*j:sd1*(j+1)] = self.grid_to_img(grid)
+					out_image[d0*i:d0*(i+1),d1*j:d1*(j+1)] = self.grid_to_img(grid)
 				
 				
 		cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
@@ -202,6 +206,13 @@ class LayoutVisualizer(BoardVisualizer):
 				else:
 					col = self.colors[state]
 				img[i][j] = col
+		sf = self.scale_factor
+
+		#If there is an unequal scaling issue... this may be it. Though I recall the scaling being backwards for some reason. 
+		img = cv2.resize(img, 
+			(sf*grid.shape[1],sf*grid.shape[0]),
+			interpolation = cv2.INTER_NEAREST
+			)
 		return img
 
 
@@ -231,22 +242,25 @@ class OneFace(Layout):
 
 
 
-
-class IconVisualizer(BoardVisualizer):
+#not functional atm - need to update 
+class IconVisualizer(LayoutVisualizer):
 	icons = None
 	border_icon = None
 	icon_dim = None
 
 
-	#load square icons
-	def __init__(self,board, path_to_icon):
-		super().__init__(board)
+	#load square icons must be numbered up to the # of states and must have a "border-icon.png" supplied. 
+	def __init__(self,board, d0, d1, layout, path_to_icon):
 		num_icons = board.num_states
 		self.icons = [0 for x in range(num_icons)]
+
 		for i in range(num_icons):
 			self.icons[i] = cv2.imread(path_to_icon+str(i)+".png")
 		self.border_icon = cv2.imread(path_to_icon+"border-icon.png")
 		self.icon_dim = (self.icons[0]).shape[0]
+
+		super().__init__(board,d0,d1,layout)## NOT DONE MIGHT SCALE UP D0 AND D1 BY ICON_DIM PROBABLY WILL AFTER UPDATING THE OTHER THING !!
+		self.scale_factor = self.icon_dim
 
 	def set_palette_from_icons(self):
 		col = np.zeros((len(self.icons),3))
@@ -254,9 +268,9 @@ class IconVisualizer(BoardVisualizer):
 			col[i] = self.avg_pixel(self.icons[i])
 		self.colors = col 
 
-	def make_image(self, frame_i, grid, image):
+	def grid_to_img(self, grid):
 		idim = self.icon_dim
-		out_image = np.zeros((idim*self.width,idim*self.height,3),dtype = np.uint8)
+		out_image = np.zeros((idim*grid.shape[0],idim*grid.shape[1],3),dtype = np.uint8)
 
 		for i in range(self.width):
 			for j in range(self.height):
@@ -266,7 +280,7 @@ class IconVisualizer(BoardVisualizer):
 					out_image[idim*i:idim*(i+1),idim*j:idim*(j+1)] = self.border_icon
 				else:
 					print("ICON-STATE ISSUE")
-		cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
+		return out_image
 
 
 
