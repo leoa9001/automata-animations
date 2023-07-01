@@ -34,13 +34,13 @@ if __name__ == '__main__':
 	w,h = img.shape[0],img.shape[1]
 	# w,h = 40,40
 
-	cb = CA.MatchUpBoard(BG.CubeGeometry(w),26,3,"assets/melee-chart.txt")
+	automatan = CA.MatchUpBoard(BG.CubeGeometry(w),26,3,"assets/melee-chart.txt")
 
 
 
 
 	# bv = BV.LayoutVisualizer(cb,w,h,BV.CubeLayout())
-	bv = BV.IconVisualizer(cb, w,h, BV.CubeLayout(),"img-assets/melee-icons/")
+	bv = BV.IconVisualizer(automatan, w,h, BV.CubeLayout(),"img-assets/melee-icons/")
 	bv.set_palette_from_icons()
 	# bv.set_palette("A8A77A-EE8130-6390F0-F7D02C-7AC74C-96D9D6-C22E28-A33EA1-E2BF65-A98FF3-F95587-A6B91A-B6A136-735797-6F35FC-705746-B7B7CE-D685AD")
 

@@ -19,7 +19,7 @@ import BoardGeometry as bg
 
 class BoardVisualizer:
 	fps = 15
-	board = None
+	automatan = None
 	width,height = None, None
 	num_colors = None
 	frame_num = 0
@@ -44,16 +44,16 @@ class BoardVisualizer:
 
 	#defined from a board
 	def __init__(self, cb):
-		self.board = cb
-		gr = self.board.getBoard()
+		self.automatan = cb
+		gr = self.automatan.getBoard()
 		self.width = gr.shape[0]
 		self.height = gr.shape[1]
 		self.num_colors = cb.num_states
 
 	#not best practice to use this but you can append frames/framenums this way. 
 	def reset_board(self,cb):
-		self.board = cb
-		gr = self.board.getBoard()
+		self.automatan = cb
+		gr = self.automatan.getBoard()
 		self.width = gr.shape[0]
 		self.height = gr.shape[1]
 		self.num_colors = cb.num_states
@@ -75,30 +75,30 @@ class BoardVisualizer:
 	#random image processing functions
 
 	def dist_pt(self,p1, p2):
-	    return np.sum(np.square(p1 - p2))
+		return np.sum(np.square(p1 - p2))
 
 	def closest_color_index(self,pix, maxind):
-	    index = 0
-	    dist = self.dist_pt(pix, self.colors[0])
-	    for i in range(1, maxind):
-	        dist2 = self.dist_pt(pix, self.colors[i])
-	        if dist2 < dist:
-	            dist = dist2
-	            index = i
-	    return index
+		index = 0
+		dist = self.dist_pt(pix, self.colors[0])
+		for i in range(1, maxind):
+			dist2 = self.dist_pt(pix, self.colors[i])
+			if dist2 < dist:
+				dist = dist2
+				index = i
+		return index
 
 	def invert_img(self,img,w,h):
-	    img2 = np.zeros((w,h,3), dtype = np.uint8)
-	    for i in range(w):
-	        for j in range(h):
-	            img2[i][j] = self.invert_pixel(img[i][j])
-	    return img2
+		img2 = np.zeros((w,h,3), dtype = np.uint8)
+		for i in range(w):
+			for j in range(h):
+				img2[i][j] = self.invert_pixel(img[i][j])
+		return img2
 
 	def invert_pixel(self, pix):
-	    d = pix
-	    for i in range(3):
-	        d[i] = (256 - d[i])%256
-	    return d
+		d = pix
+		for i in range(3):
+			d[i] = (256 - d[i])%256
+		return d
 
 	def avg_pixel(self, img):
 		run_sum = np.zeros((3))
@@ -114,28 +114,28 @@ class BoardVisualizer:
 
 
 	def grid_from_image(self, img, w, h):
-	    grid = np.zeros((w,h))
-	    for i in range(w):
-	        for j in range(h):
-	            grid[i][j] = self.closest_color_index(img[i][j],self.num_colors)
-	    return grid
+		grid = np.zeros((w,h))
+		for i in range(w):
+			for j in range(h):
+				grid[i][j] = self.closest_color_index(img[i][j],self.num_colors)
+		return grid
 
    #cellboards -> frames
 
 	def make_image(self, frame_i, grid, image):
-	    for i in range(self.num_colors):
-	        mask = (grid == i)
-	        image[mask] = self.colors[i]
-	    bd_mask = (grid==-1)
-	    image[bd_mask] = self.border_color
+		for i in range(self.num_colors):
+			mask = (grid == i)
+			image[mask] = self.colors[i]
+		bd_mask = (grid==-1)
+		image[bd_mask] = self.border_color
 
-	    resize_factor = 8
-	    out_image = cv2.resize(
-	        image,
-	        (resize_factor * self.height, resize_factor * self.width),
-	        interpolation=cv2.INTER_NEAREST
-	    )
-	    cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
+		resize_factor = 8
+		out_image = cv2.resize(
+			image,
+			(resize_factor * self.height, resize_factor * self.width),
+			interpolation=cv2.INTER_NEAREST
+		)
+		cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)
 
 
 	def gen_frames(self, initial_seconds, seconds,fps):
@@ -143,7 +143,7 @@ class BoardVisualizer:
 		fn = self.frame_num
 		
 		image = np.zeros((self.width, self.height, 3), dtype=np.uint8)
-		grid = self.board.getBoard()
+		grid = self.automatan.getBoard()
 
 		initial_frames = initial_seconds * fps
 		for frame_i in tqdm(range(fn, fn + initial_frames)):
@@ -153,8 +153,8 @@ class BoardVisualizer:
 		fn += initial_frames
 		for frame_i in tqdm(range(fn, fn + subsequent_frames)):
 			self.make_image(frame_i, grid, image)
-			self.board.updateBoard()
-			grid = self.board.getBoard()
+			self.automatan.updateBoard()
+			grid = self.automatan.getBoard()
 
 		self.frame_num = fn+subsequent_frames
 
@@ -181,7 +181,7 @@ class LayoutVisualizer(BoardVisualizer):
 		d1 = self.scale_factor*self.dim1
 
 		out_image = np.zeros((sp[0]*d0,sp[1]*d1,3),dtype = np.uint8)
-		grids = self.board.board.grids
+		grids = self.automatan.board.grids
 
 		#loop through shape of layout. 
 		for i in range(sp[0]):
