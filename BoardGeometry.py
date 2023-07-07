@@ -1,6 +1,5 @@
 import random
 import numpy as np
-import exc
 
 
 
@@ -121,7 +120,7 @@ class BoardGeometry:
 			return -1
 
 		if(new_grid_ind==-2):
-			raise RuntimeError('unwrappable value in get wrap value with coords: ('+ str(grid_ind)+","+str(i)+","+str(j)+")") from exc
+			raise RuntimeError('unwrappable value in get wrap value with coords: ('+ str(grid_ind)+","+str(i)+","+str(j)+")")
 
 		val = self.grids[new_grid_ind][xj][yj]
 
@@ -133,7 +132,7 @@ class BoardGeometry:
 		corners = {}
 		for tup in paste_data: #tup of form [[i,s],[j,t],sign] -> [i,s]: [j,t,sign] but better!, well but redundant
 			if((tup[0] in stitching.values()) or (tup[1] in stitching.values())):
-				 raise RuntimeError('over-stitching') from exc
+				 raise RuntimeError('over-stitching')
 			else: 
 				s0 = tup[0]
 				s1 = tup[1]
@@ -156,7 +155,7 @@ class BoardGeometry:
 	#format: (self, grid index, grid side, coord0, coord1) coords are adjacent to edge
 	def transversal(self,i,s,x,y):
 		if(not(self.verify(i,s,x,y))):
-			raise RuntimeError('Transverse error on Grid '+ str(i)+ ", edge "+str(s)+", at ("+str(x)+","+str(y)+").") from exc
+			raise RuntimeError('Transverse error on Grid '+ str(i)+ ", edge "+str(s)+", at ("+str(x)+","+str(y)+").")
 
 		if(not((i,s) in self.stitching.keys())):
 			return (-1,-1,-1,-1)
@@ -221,7 +220,7 @@ class BoardGeometry:
 		elif(i== d0-1 and j==0):
 			return ((grid_ind,0),(grid_ind,3))
 		else:
-			# raise RuntimeError("Adjacent edge run on non-corner: ("+str(i)+","+str(j)+")") from exc
+			# raise RuntimeError("Adjacent edge run on non-corner: ("+str(i)+","+str(j)+")")
 			print("ADJACENT EDGE RUN ON NON-CORNER: ("+str(i)+","+str(j)+")")
 			print("Dimensions: ("+str(d0)+","+str(d1)+")")
 
@@ -243,7 +242,7 @@ class BoardGeometry:
 		else:
 			print(sides)
 			print(in_side)
-			raise RuntimeError("Adjacent side error") from exc
+			raise RuntimeError("Adjacent side error")
 
 		tv2 = self.transversal(out_side[0],out_side[1],corner[0],corner[1])
 
@@ -279,7 +278,7 @@ class BoardGeometry:
 			c1 = d1
 
 		if(c0==-2 or c1==-2):
-			raise RuntimeError("invalid corner init input") from exc
+			raise RuntimeError("invalid corner init input")
 
 
 		if(dbl_tv1==dbl_tv2):
