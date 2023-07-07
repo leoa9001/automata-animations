@@ -21,6 +21,10 @@ running the ``make_video.sh`` script (requires ffmpeg).
 
 In a bunch of commits, this repository is pretty far removed from rps-automata. Here is the basic rundown of how to use it:
 
+1. Write code in python using classes BoardGeometry, BoardVisualizer, CellAutomata to generate individual png frames of an animation into a folder called "frames"
+2. use `make_gif.sh` or `make_video.sh` as follows to weave the frames into a gif/mp4: `./make_video.sh video_name.mp4 framerate`
+3. 
+
 There are three main classes, BoardGeometry (BG), BoardVisualizer (BV), and CellAutomata (CA). In general, CellAutomata is a class that sets rules for Cell Automatan computation: you can set transition rules, set the initial board, set the geometry (e.g. flat cube, torus, etc. via BG). Then, feed it to a BoardVisualizer to fill out functionality for making gifs from the automata.
 
 
