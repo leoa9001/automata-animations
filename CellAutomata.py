@@ -103,7 +103,7 @@ class RPSBoard(CellBoard):
     )
 
 	def __init__(self,width,height,nstate,nthresh):
-		super().__init__(width,height)
+		super().__init__(BG.TorusGeometry(width,height))
 		self.neighbor_threshold = nthresh
 		self.num_states = nstate
 
@@ -197,9 +197,9 @@ class MatchUpBoard(CompareBoard):
 	muChart = None
 
 	#n is number of alternates in chart text
-	def __init__(self, board_geom, n, nt, path_to_chart):
-		super().__init__(board_geom,n,nt)
-		self.load_chart(n,path_to_chart)
+	def __init__(self, board_geom, number_states, neighbor_threshold, path_to_chart):
+		super().__init__(board_geom,number_states,neighbor_threshold)
+		self.load_chart(number_states,path_to_chart)
 
 	def load_chart(self, n, path_to_chart):
 		muC = np.zeros((n,n))

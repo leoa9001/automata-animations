@@ -43,20 +43,20 @@ class BoardVisualizer:
 
 
 	#defined from a board
-	def __init__(self, cb):
-		self.automatan = cb
+	def __init__(self, automatan):
+		self.automatan = automatan
 		gr = self.automatan.getBoard()
 		self.width = gr.shape[0]
 		self.height = gr.shape[1]
-		self.num_colors = cb.num_states
+		self.num_colors = automatan.num_states
 
 	#not best practice to use this but you can append frames/framenums this way. 
-	def reset_board(self,cb):
-		self.automatan = cb
+	def reset_board(self,automatan):
+		self.automatan = automatan
 		gr = self.automatan.getBoard()
 		self.width = gr.shape[0]
 		self.height = gr.shape[1]
-		self.num_colors = cb.num_states
+		self.num_colors = automatan.num_states
 
 	#like the end of a coolors.com url hex_string with - separating them
 	def set_palette(self, hex_string):
@@ -159,7 +159,7 @@ class BoardVisualizer:
 		self.frame_num = fn+subsequent_frames
 
 
-#Should move scale handling to 
+#This if for anything with multiple boards to visualize
 class LayoutVisualizer(BoardVisualizer):
 	dim0, dim1 = None,None
 	blank_grid = None
@@ -168,7 +168,7 @@ class LayoutVisualizer(BoardVisualizer):
 
 
 	#dm0,dm1 are the dimensions of *each grid* full grid is shape dimensions product with such 
-	def __init__(self, cb, dm0, dm1,layout):
+	def __init__(self, cb, dm0, dm1, layout):
 		super().__init__(cb)
 		self.dim0 = dm0
 		self.dim1 = dm1 
@@ -176,21 +176,21 @@ class LayoutVisualizer(BoardVisualizer):
 
 
 	def make_image(self, frame_i, grid, image):
-		sp = self.layout.shape
-		d0 = self.scale_factor*self.dim0
-		d1 = self.scale_factor*self.dim1
+		shape = self.layout.shape
+		scaled_dim0 = self.scale_factor*self.dim0
+		scaled_dim1 = self.scale_factor*self.dim1
 
-		out_image = np.zeros((sp[0]*d0,sp[1]*d1,3),dtype = np.uint8)
+		out_image = np.zeros((shape[0]*scaled_dim0,shape[1]*scaled_dim1,3),dtype = np.uint8)
 		grids = self.automatan.board.grids
 
 		#loop through shape of layout. 
-		for i in range(sp[0]):
-			for j in range(sp[1]):
+		for i in range(shape[0]):
+			for j in range(shape[1]):
 				grid = grids[self.layout.form[i][j]]
 				if(self.layout.form[i][j]==-1): 
 					pass #fill this in with setting the border grid. 
 				else:
-					out_image[d0*i:d0*(i+1),d1*j:d1*(j+1)] = self.grid_to_img(grid)
+					out_image[scaled_dim0*i:scaled_dim0*(i+1),scaled_dim1*j:scaled_dim1*(j+1)] = self.grid_to_img(grid)
 				
 				
 		cv2.imwrite(f'frames/{frame_i:04d}.png', out_image)

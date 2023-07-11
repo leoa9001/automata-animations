@@ -132,8 +132,8 @@ class BoardGeometry:
 		corners = {}
 		for tup in paste_data: #tup of form [[i,s],[j,t],sign] -> [i,s]: [j,t,sign] but better!, well but redundant
 			if((tup[0] in stitching.values()) or (tup[1] in stitching.values())):
-				 raise RuntimeError('over-stitching')
-			else: 
+				raise RuntimeError('over-stitching')
+			else:
 				s0 = tup[0]
 				s1 = tup[1]
 				sign = tup[2]
